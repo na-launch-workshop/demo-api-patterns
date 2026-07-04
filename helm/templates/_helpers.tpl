@@ -24,7 +24,15 @@ app.kubernetes.io/instance: {{ .Release.Name | quote }}
 {{- end -}}
 
 {{- define "demo-apipatterns-chart.appFullname" -}}
-{{- printf "%s-app" (include "demo-apipatterns-chart.fullname" .) -}}
+{{- printf "%s-gql-app" (include "demo-apipatterns-chart.fullname" .) -}}
+{{- end -}}
+
+{{- define "demo-apipatterns-chart.restAppFullname" -}}
+{{- printf "%s-rest-app" (include "demo-apipatterns-chart.fullname" .) -}}
+{{- end -}}
+
+{{- define "demo-apipatterns-chart.grpcAppFullname" -}}
+{{- printf "%s-grpc-app" (include "demo-apipatterns-chart.fullname" .) -}}
 {{- end -}}
 
 {{- define "demo-apipatterns-chart.appEnv" -}}
@@ -81,6 +89,22 @@ app.kubernetes.io/instance: {{ .Release.Name | quote }}
 {{- if (index .Values "gql-app" "image") -}}
 {{- index .Values "gql-app" "image" -}}
 {{- else -}}
-{{- printf "image-registry.openshift-image-registry.svc:5000/%s/%s:%s" .Release.Namespace .Values.imageStream.name .Values.imageStream.tag -}}
+{{- printf "image-registry.openshift-image-registry.svc:5000/%s/%s:%s" .Release.Namespace (index .Values "gql-app" "imageStream" "name") (index .Values "gql-app" "imageStream" "tag") -}}
+{{- end -}}
+{{- end -}}
+
+{{- define "demo-apipatterns-chart.restAppImage" -}}
+{{- if (index .Values "rest-app" "image") -}}
+{{- index .Values "rest-app" "image" -}}
+{{- else -}}
+{{- printf "image-registry.openshift-image-registry.svc:5000/%s/%s:%s" .Release.Namespace (index .Values "rest-app" "imageStream" "name") (index .Values "rest-app" "imageStream" "tag") -}}
+{{- end -}}
+{{- end -}}
+
+{{- define "demo-apipatterns-chart.grpcAppImage" -}}
+{{- if (index .Values "grpc-app" "image") -}}
+{{- index .Values "grpc-app" "image" -}}
+{{- else -}}
+{{- printf "image-registry.openshift-image-registry.svc:5000/%s/%s:%s" .Release.Namespace (index .Values "grpc-app" "imageStream" "name") (index .Values "grpc-app" "imageStream" "tag") -}}
 {{- end -}}
 {{- end -}}

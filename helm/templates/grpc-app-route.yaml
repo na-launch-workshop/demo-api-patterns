@@ -1,0 +1,19 @@
+{{- if and (index .Values "grpc-app" "enabled") (index .Values "grpc-app" "route" "enabled") }}
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: {{ include "demo-apipatterns-chart.grpcAppFullname" . }}
+  labels:
+    {{- include "demo-apipatterns-chart.labels" . | nindent 4 }}
+spec:
+  host: {{ index .Values "grpc-app" "route" "host" | quote }}
+  to:
+    kind: Service
+    name: {{ include "demo-apipatterns-chart.grpcAppFullname" . }}
+  port:
+    targetPort: grpc
+  {{- if (index .Values "grpc-app" "route" "tls") }}
+  tls:
+    {{- toYaml (index .Values "grpc-app" "route" "tls") | nindent 4 }}
+  {{- end }}
+{{- end }}

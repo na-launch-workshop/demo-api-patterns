@@ -1,8 +1,8 @@
-{{- if (index .Values "gql-app" "enabled") }}
+{{- if (index .Values "grpc-app" "enabled") }}
 apiVersion: image.openshift.io/v1
 kind: ImageStream
 metadata:
-  name: {{ index .Values "gql-app" "imageStream" "name" }}
+  name: {{ index .Values "grpc-app" "imageStream" "name" }}
   labels:
     {{- include "demo-apipatterns-chart.labels" . | nindent 4 }}
 spec:

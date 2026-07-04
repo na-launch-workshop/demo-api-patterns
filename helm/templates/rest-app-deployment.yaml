@@ -1,13 +1,13 @@
-{{- if (index .Values "gql-app" "enabled") }}
+{{- if (index .Values "rest-app" "enabled") }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "demo-apipatterns-chart.appFullname" . }}
+  name: {{ include "demo-apipatterns-chart.restAppFullname" . }}
   labels:
     {{- include "demo-apipatterns-chart.labels" . | nindent 4 }}
   annotations:
     image.openshift.io/triggers: >-
-      [{"from":{"kind":"ImageStreamTag","name":"{{ index .Values "gql-app" "imageStream" "name" }}:{{ index .Values "gql-app" "imageStream" "tag" }}","namespace":"{{ .Release.Namespace }}"},"fieldPath":"spec.template.spec.containers[?(@.name=='graphql-app')].image"}]
+      [{"from":{"kind":"ImageStreamTag","name":"{{ index .Values "rest-app" "imageStream" "name" }}:{{ index .Values "rest-app" "imageStream" "tag" }}","namespace":"{{ .Release.Namespace }}"},"fieldPath":"spec.template.spec.containers[?(@.name=='rest-app')].image"}]
     argocd.argoproj.io/ignore-differences: |-
       jsonPointers:
         - /spec/template/spec/containers/0/image
@@ -15,18 +15,18 @@ spec:
   replicas: {{ .Values.replicaCount | default 1 }}
   selector:
     matchLabels:
-      app: {{ include "demo-apipatterns-chart.appFullname" . | quote }}
+      app: {{ include "demo-apipatterns-chart.restAppFullname" . | quote }}
   template:
     metadata:
       labels:
-        app: {{ include "demo-apipatterns-chart.appFullname" . | quote }}
+        app: {{ include "demo-apipatterns-chart.restAppFullname" . | quote }}
     spec:
       containers:
-        - name: graphql-app
-          image: {{ include "demo-apipatterns-chart.appImage" . | quote }}
-          imagePullPolicy: {{ index .Values "gql-app" "imagePullPolicy" | default "IfNotPresent" }}
+        - name: rest-app
+          image: {{ include "demo-apipatterns-chart.restAppImage" . | quote }}
+          imagePullPolicy: {{ index .Values "rest-app" "imagePullPolicy" | default "IfNotPresent" }}
           ports:
-            - containerPort: {{ index .Values "gql-app" "service" "port" }}
+            - containerPort: {{ index .Values "rest-app" "service" "port" }}
               name: http
           env:
             {{- include "demo-apipatterns-chart.appEnv" . | nindent 12 }}
@@ -35,7 +35,7 @@ spec:
             - name: sqlite-data
               mountPath: {{ .Values.sqlite.mountPath | quote }}
           {{- end }}
-          {{- with (index .Values "gql-app" "resources") }}
+          {{- with (index .Values "rest-app" "resources") }}
           resources:
             {{- toYaml . | nindent 12 }}
           {{- end }}
@@ -49,15 +49,15 @@ spec:
           emptyDir: {}
 {{- end }}
       {{- end }}
-      {{- with (index .Values "gql-app" "nodeSelector") }}
+      {{- with (index .Values "rest-app" "nodeSelector") }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with (index .Values "gql-app" "affinity") }}
+      {{- with (index .Values "rest-app" "affinity") }}
       affinity:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with (index .Values "gql-app" "tolerations") }}
+      {{- with (index .Values "rest-app" "tolerations") }}
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}

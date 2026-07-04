@@ -1,0 +1,19 @@
+{{- if (index .Values "grpc-app" "enabled") }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "demo-apipatterns-chart.grpcAppFullname" . }}
+  labels:
+    {{- include "demo-apipatterns-chart.labels" . | nindent 4 }}
+  annotations:
+    service.alpha.openshift.io/serving-cert-secret-name: {{ include "demo-apipatterns-chart.grpcAppFullname" . }}-tls
+spec:
+  type: {{ index .Values "grpc-app" "service" "type" | default "ClusterIP" }}
+  ports:
+    - name: grpc
+      port: {{ index .Values "grpc-app" "service" "port" }}
+      targetPort: grpc
+      protocol: TCP
+  selector:
+    app: {{ include "demo-apipatterns-chart.grpcAppFullname" . | quote }}
+{{- end }}

@@ -18,19 +18,68 @@ gql-app:
   nodeSelector: null
   affinity: null
   tolerations: []
+  imageStream:
+    name: demo-apipatterns-gql
+    tag: latest
+  buildConfig:
+    enabled: true
+    contextDir: gql-app
 
-imageStream:
+rest-app:
   enabled: true
-  name: demo-apipatterns-chart
-  tag: latest
-  lookupPolicyLocal: true
+  image: ""
+  imagePullPolicy: Always
+  service:
+    type: ClusterIP
+    port: 3000
+  route:
+    enabled: true
+    host: ""
+    tls:
+      termination: edge
+      insecureEdgeTerminationPolicy: Redirect
+  env: []
+  resources: {}
+  nodeSelector: null
+  affinity: null
+  tolerations: []
+  imageStream:
+    name: demo-apipatterns-rest
+    tag: latest
+  buildConfig:
+    enabled: true
+    contextDir: rest-app
 
+grpc-app:
+  enabled: true
+  image: ""
+  imagePullPolicy: Always
+  service:
+    type: ClusterIP
+    port: 50051
+  route:
+    enabled: true
+    host: ""
+    tls:
+      termination: edge
+      insecureEdgeTerminationPolicy: Redirect
+  env: []
+  resources: {}
+  nodeSelector: null
+  affinity: null
+  tolerations: []
+  imageStream:
+    name: demo-apipatterns-grpc
+    tag: latest
+  buildConfig:
+    enabled: true
+    contextDir: grpc-app
+
+# Shared build configuration
 buildConfig:
-  enabled: true
   git:
     uri: https://github.com/na-launch-workshop/demo-api-patterns.git
     ref: master
-    contextDir: gql-app
   dockerfilePath: Dockerfile
   resources: {}
   env: []

@@ -1,0 +1,17 @@
+{{- if (index .Values "rest-app" "enabled") }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "demo-apipatterns-chart.restAppFullname" . }}
+  labels:
+    {{- include "demo-apipatterns-chart.labels" . | nindent 4 }}
+spec:
+  type: {{ index .Values "rest-app" "service" "type" | default "ClusterIP" }}
+  ports:
+    - name: http
+      port: {{ index .Values "rest-app" "service" "port" }}
+      targetPort: http
+      protocol: TCP
+  selector:
+    app: {{ include "demo-apipatterns-chart.restAppFullname" . | quote }}
+{{- end }}

@@ -1,0 +1,19 @@
+{{- if and (index .Values "rest-app" "enabled") (index .Values "rest-app" "route" "enabled") }}
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: {{ include "demo-apipatterns-chart.restAppFullname" . }}
+  labels:
+    {{- include "demo-apipatterns-chart.labels" . | nindent 4 }}
+spec:
+  host: {{ index .Values "rest-app" "route" "host" | quote }}
+  to:
+    kind: Service
+    name: {{ include "demo-apipatterns-chart.restAppFullname" . }}
+  port:
+    targetPort: http
+  {{- if (index .Values "rest-app" "route" "tls") }}
+  tls:
+    {{- toYaml (index .Values "rest-app" "route" "tls") | nindent 4 }}
+  {{- end }}
+{{- end }}

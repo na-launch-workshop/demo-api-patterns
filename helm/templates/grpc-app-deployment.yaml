@@ -1,13 +1,13 @@
-{{- if (index .Values "gql-app" "enabled") }}
+{{- if (index .Values "grpc-app" "enabled") }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "demo-apipatterns-chart.appFullname" . }}
+  name: {{ include "demo-apipatterns-chart.grpcAppFullname" . }}
   labels:
     {{- include "demo-apipatterns-chart.labels" . | nindent 4 }}
   annotations:
     image.openshift.io/triggers: >-
-      [{"from":{"kind":"ImageStreamTag","name":"{{ index .Values "gql-app" "imageStream" "name" }}:{{ index .Values "gql-app" "imageStream" "tag" }}","namespace":"{{ .Release.Namespace }}"},"fieldPath":"spec.template.spec.containers[?(@.name=='graphql-app')].image"}]
+      [{"from":{"kind":"ImageStreamTag","name":"{{ index .Values "grpc-app" "imageStream" "name" }}:{{ index .Values "grpc-app" "imageStream" "tag" }}","namespace":"{{ .Release.Namespace }}"},"fieldPath":"spec.template.spec.containers[?(@.name=='grpc-app')].image"}]
     argocd.argoproj.io/ignore-differences: |-
       jsonPointers:
         - /spec/template/spec/containers/0/image
@@ -15,19 +15,19 @@ spec:
   replicas: {{ .Values.replicaCount | default 1 }}
   selector:
     matchLabels:
-      app: {{ include "demo-apipatterns-chart.appFullname" . | quote }}
+      app: {{ include "demo-apipatterns-chart.grpcAppFullname" . | quote }}
   template:
     metadata:
       labels:
-        app: {{ include "demo-apipatterns-chart.appFullname" . | quote }}
+        app: {{ include "demo-apipatterns-chart.grpcAppFullname" . | quote }}
     spec:
       containers:
-        - name: graphql-app
-          image: {{ include "demo-apipatterns-chart.appImage" . | quote }}
-          imagePullPolicy: {{ index .Values "gql-app" "imagePullPolicy" | default "IfNotPresent" }}
+        - name: grpc-app
+          image: {{ include "demo-apipatterns-chart.grpcAppImage" . | quote }}
+          imagePullPolicy: {{ index .Values "grpc-app" "imagePullPolicy" | default "IfNotPresent" }}
           ports:
-            - containerPort: {{ index .Values "gql-app" "service" "port" }}
-              name: http
+            - containerPort: {{ index .Values "grpc-app" "service" "port" }}
+              name: grpc
           env:
             {{- include "demo-apipatterns-chart.appEnv" . | nindent 12 }}
           {{- if .Values.sqlite.enabled }}
@@ -35,7 +35,7 @@ spec:
             - name: sqlite-data
               mountPath: {{ .Values.sqlite.mountPath | quote }}
           {{- end }}
-          {{- with (index .Values "gql-app" "resources") }}
+          {{- with (index .Values "grpc-app" "resources") }}
           resources:
             {{- toYaml . | nindent 12 }}
           {{- end }}
@@ -49,15 +49,15 @@ spec:
           emptyDir: {}
 {{- end }}
       {{- end }}
-      {{- with (index .Values "gql-app" "nodeSelector") }}
+      {{- with (index .Values "grpc-app" "nodeSelector") }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with (index .Values "gql-app" "affinity") }}
+      {{- with (index .Values "grpc-app" "affinity") }}
       affinity:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with (index .Values "gql-app" "tolerations") }}
+      {{- with (index .Values "grpc-app" "tolerations") }}
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}

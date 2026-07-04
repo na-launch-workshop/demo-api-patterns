@@ -1,8 +1,8 @@
-{{- if and (index .Values "gql-app" "enabled") (index .Values "gql-app" "buildConfig" "enabled") }}
+{{- if and (index .Values "grpc-app" "enabled") (index .Values "grpc-app" "buildConfig" "enabled") }}
 apiVersion: build.openshift.io/v1
 kind: BuildConfig
 metadata:
-  name: {{ include "demo-apipatterns-chart.appFullname" . }}
+  name: {{ include "demo-apipatterns-chart.grpcAppFullname" . }}
   labels:
     {{- include "demo-apipatterns-chart.labels" . | nindent 4 }}
 spec:
@@ -14,7 +14,7 @@ spec:
       {{- with .Values.buildConfig.git.ref }}
       ref: {{ . | quote }}
       {{- end }}
-    {{- with (index .Values "gql-app" "buildConfig" "contextDir") }}
+    {{- with (index .Values "grpc-app" "buildConfig" "contextDir") }}
     contextDir: {{ . | quote }}
     {{- end }}
   strategy:
@@ -28,7 +28,7 @@ spec:
   output:
     to:
       kind: ImageStreamTag
-      name: {{ printf "%s:%s" (index .Values "gql-app" "imageStream" "name") (index .Values "gql-app" "imageStream" "tag") | quote }}
+      name: {{ printf "%s:%s" (index .Values "grpc-app" "imageStream" "name") (index .Values "grpc-app" "imageStream" "tag") | quote }}
   {{- if or .Values.buildConfig.triggers.configChange .Values.buildConfig.triggers.imageChange }}
   triggers:
     {{- if .Values.buildConfig.triggers.configChange }}
