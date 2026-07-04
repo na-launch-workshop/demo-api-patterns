@@ -1,0 +1,19 @@
+{{- if and .Values.sqlite.enabled .Values.sqlite.persistent }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "demo-apipatterns-chart.sqliteFullname" . }}
+  labels:
+    {{- include "demo-apipatterns-chart.labels" . | nindent 4 }}
+spec:
+  accessModes:
+{{- range .Values.sqlite.accessModes }}
+    - {{ . | quote }}
+{{- end }}
+  resources:
+    requests:
+      storage: {{ .Values.sqlite.storage | quote }}
+{{- if .Values.sqlite.storageClassName }}
+  storageClassName: {{ .Values.sqlite.storageClassName | quote }}
+{{- end }}
+{{- end }}

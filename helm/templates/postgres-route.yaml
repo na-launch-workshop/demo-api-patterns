@@ -1,0 +1,17 @@
+{{- if and .Values.postgres.enabled .Values.postgres.route.enabled }}
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: {{ include "demo-apipatterns-chart.postgresFullname" . }}
+  labels:
+    {{- include "demo-apipatterns-chart.labels" . | nindent 4 }}
+spec:
+  host: {{ .Values.postgres.route.host | quote }}
+  to:
+    kind: Service
+    name: {{ include "demo-apipatterns-chart.postgresFullname" . }}
+  port:
+    targetPort: postgres
+  tls:
+    termination: passthrough
+{{- end }}

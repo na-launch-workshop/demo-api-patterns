@@ -1,0 +1,6 @@
+apiVersion: v2
+name: demo-apipatterns-chart
+description: Helm Chart for apipatterns demo application
+type: application
+version: 0.1.0
+appVersion: "1.0"

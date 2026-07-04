@@ -1,0 +1,72 @@
+syntax = "proto3";
+
+package books;
+
+// Book service definition
+service BookService {
+  // Get all books
+  rpc ListBooks(ListBooksRequest) returns (ListBooksResponse);
+
+  // Get book by ID
+  rpc GetBook(GetBookRequest) returns (Book);
+
+  // Create new book
+  rpc CreateBook(CreateBookRequest) returns (Book);
+
+  // Update book
+  rpc UpdateBook(UpdateBookRequest) returns (Book);
+
+  // Delete book
+  rpc DeleteBook(DeleteBookRequest) returns (DeleteBookResponse);
+
+  // Get books by author (server streaming)
+  rpc GetBooksByAuthor(GetBooksByAuthorRequest) returns (stream Book);
+}
+
+// Messages
+message Book {
+  int32 id = 1;
+  string title = 2;
+  int32 author_id = 3;
+  string synopsis = 4;
+}
+
+message ListBooksRequest {
+  int32 limit = 1;
+  int32 offset = 2;
+}
+
+message ListBooksResponse {
+  repeated Book books = 1;
+  int32 total = 2;
+}
+
+message GetBookRequest {
+  int32 id = 1;
+}
+
+message CreateBookRequest {
+  string title = 1;
+  int32 author_id = 2;
+  string synopsis = 3;
+}
+
+message UpdateBookRequest {
+  int32 id = 1;
+  string title = 2;
+  int32 author_id = 3;
+  string synopsis = 4;
+}
+
+message DeleteBookRequest {
+  int32 id = 1;
+}
+
+message DeleteBookResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message GetBooksByAuthorRequest {
+  int32 author_id = 1;
+}

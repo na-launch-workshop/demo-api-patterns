@@ -1,0 +1,17 @@
+{{- if .Values.mysql.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "demo-apipatterns-chart.mysqlFullname" . }}
+  labels:
+    {{- include "demo-apipatterns-chart.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.mysql.service.type | default "ClusterIP" }}
+  ports:
+    - port: {{ .Values.mysql.service.port | default 3306 }}
+      targetPort: {{ .Values.mysql.port | default 3306 }}
+      protocol: TCP
+      name: mysql
+  selector:
+    app: {{ include "demo-apipatterns-chart.mysqlFullname" . | quote }}
+{{- end }}

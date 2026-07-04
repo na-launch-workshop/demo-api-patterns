@@ -1,0 +1,113 @@
+replicaCount: 1
+
+gql-app:
+  enabled: true
+  image: ""
+  imagePullPolicy: Always
+  service:
+    type: ClusterIP
+    port: 4000
+  route:
+    enabled: true
+    host: ""
+    tls:
+      termination: edge
+      insecureEdgeTerminationPolicy: Redirect
+  env: []
+  resources: {}
+  nodeSelector: null
+  affinity: null
+  tolerations: []
+
+imageStream:
+  enabled: true
+  name: demo-apipatterns-chart
+  tag: latest
+  lookupPolicyLocal: true
+
+buildConfig:
+  enabled: true
+  git:
+    uri: https://github.com/na-launch-workshop/demo-api-patterns.git
+    ref: master
+    contextDir: gql-app
+  dockerfilePath: Dockerfile
+  resources: {}
+  env: []
+  triggers:
+    configChange: true
+    imageChange: true
+  runPolicy: Serial
+
+postgres:
+  enabled: true
+  image: postgres:16-alpine
+  port: 5432
+  username: dbuser
+  password: dbuser
+  database: postgres
+  storage: 1Gi
+  dataDir: /var/lib/postgresql/data/pgdata
+  service:
+    type: ClusterIP
+    port: 5432
+  route:
+    enabled: true
+    host: ""
+
+mysql:
+  enabled: true
+  username: appuser
+  password: apppass
+  rootpassword: rootpass123
+  database: appdb
+  image: mysql:8.0
+  port: 3306
+  storage: 1Gi
+  service:
+    type: ClusterIP
+    port: 3306
+  route:
+    enabled: true
+    host: ""
+  tls:
+    enabled: true
+
+sqlite:
+  enabled: true
+  persistent: false
+  storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: ""
+  mountPath: /data/sqlite
+  dbFile: reviews.db
+
+seedJob:
+  enabled: true
+  backoffLimit: 3
+  annotations: {}
+  env: []
+  resources: {}
+  nodeSelector: null
+  affinity: null
+  tolerations: []
+
+argocd:
+  enabled: true
+  namespace: openshift-gitops
+  project: default
+  repoURL: https://github.com/na-launch-workshop/demo-api-patterns.git
+  targetRevision: master
+  path: helm
+  helm:
+    valueFiles: []
+    parameters: []
+  destinationServer: https://kubernetes.default.svc
+  syncPolicy:
+    automated:
+      enabled: true
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

@@ -1,0 +1,85 @@
+syntax = "proto3";
+
+package authors;
+
+// Author service definition
+service AuthorService {
+  // Get all authors
+  rpc ListAuthors(ListAuthorsRequest) returns (ListAuthorsResponse);
+
+  // Get author by ID
+  rpc GetAuthor(GetAuthorRequest) returns (Author);
+
+  // Create new author
+  rpc CreateAuthor(CreateAuthorRequest) returns (Author);
+
+  // Update author
+  rpc UpdateAuthor(UpdateAuthorRequest) returns (Author);
+
+  // Delete author
+  rpc DeleteAuthor(DeleteAuthorRequest) returns (DeleteAuthorResponse);
+
+  // Stream all authors (server streaming)
+  rpc StreamAuthors(StreamAuthorsRequest) returns (stream Author);
+}
+
+// Messages
+message Author {
+  int32 id = 1;
+  string firstname = 2;
+  string lastname = 3;
+  string birthdate = 4;
+  string favoriteColor = 5;
+  string bio = 6;
+  repeated Book books = 7;
+}
+
+message Book {
+  int32 id = 1;
+  string title = 2;
+  string synopsis = 3;
+}
+
+message ListAuthorsRequest {
+  int32 limit = 1;
+  int32 offset = 2;
+}
+
+message ListAuthorsResponse {
+  repeated Author authors = 1;
+  int32 total = 2;
+}
+
+message GetAuthorRequest {
+  int32 id = 1;
+}
+
+message CreateAuthorRequest {
+  string firstname = 1;
+  string lastname = 2;
+  string birthdate = 3;
+  string favoriteColor = 4;
+  string bio = 5;
+}
+
+message UpdateAuthorRequest {
+  int32 id = 1;
+  string firstname = 2;
+  string lastname = 3;
+  string birthdate = 4;
+  string favoriteColor = 5;
+  string bio = 6;
+}
+
+message DeleteAuthorRequest {
+  int32 id = 1;
+}
+
+message DeleteAuthorResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message StreamAuthorsRequest {
+  int32 batch_size = 1;
+}

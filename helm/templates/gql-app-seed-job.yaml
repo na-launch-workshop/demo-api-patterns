@@ -1,0 +1,65 @@
+{{- if and (index .Values "gql-app" "enabled") .Values.seedJob.enabled }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "demo-apipatterns-chart.appFullname" . }}-seed
+  labels:
+    {{- include "demo-apipatterns-chart.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "5"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+    "argocd.argoproj.io/sync-options": SkipHooks=true
+    {{- range $key, $value := .Values.seedJob.annotations }}
+    {{ $key }}: {{ $value | quote }}
+    {{- end }}
+spec:
+  backoffLimit: {{ .Values.seedJob.backoffLimit | default 3 }}
+  template:
+    metadata:
+      labels:
+        {{- include "demo-apipatterns-chart.labels" . | nindent 8 }}
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: seed
+          image: {{ include "demo-apipatterns-chart.appImage" . | quote }}
+          imagePullPolicy: {{ index .Values "gql-app" "imagePullPolicy" | default "IfNotPresent" }}
+          command: ["node", "scripts/seed.js"]
+          env:
+            {{- include "demo-apipatterns-chart.appEnv" . | nindent 12 }}
+            {{- with .Values.seedJob.env }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          {{- if .Values.sqlite.enabled }}
+          volumeMounts:
+            - name: sqlite-data
+              mountPath: {{ .Values.sqlite.mountPath | quote }}
+          {{- end }}
+          {{- with .Values.seedJob.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      {{- if .Values.sqlite.enabled }}
+      volumes:
+        - name: sqlite-data
+{{- if .Values.sqlite.persistent }}
+          persistentVolumeClaim:
+            claimName: {{ include "demo-apipatterns-chart.sqliteFullname" . }}
+{{- else }}
+          emptyDir: {}
+{{- end }}
+      {{- end }}
+      {{- with .Values.seedJob.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.seedJob.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.seedJob.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

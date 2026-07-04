@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+package health;
+
+// Health check service
+service HealthService {
+  // Check overall health
+  rpc Check(HealthCheckRequest) returns (HealthCheckResponse);
+
+  // Watch health status (server streaming)
+  rpc Watch(HealthCheckRequest) returns (stream HealthCheckResponse);
+}
+
+message HealthCheckRequest {
+  string service = 1;
+}
+
+message HealthCheckResponse {
+  enum ServingStatus {
+    UNKNOWN = 0;
+    SERVING = 1;
+    NOT_SERVING = 2;
+    SERVICE_UNKNOWN = 3;
+  }
+
+  ServingStatus status = 1;
+  string timestamp = 2;
+  int64 uptime = 3;
+  DatabaseStatus databases = 4;
+}
+
+message DatabaseStatus {
+  string postgres = 1;
+  string mysql = 2;
+  string sqlite = 3;
+}

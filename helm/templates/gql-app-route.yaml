@@ -1,0 +1,19 @@
+{{- if and (index .Values "gql-app" "enabled") (index .Values "gql-app" "route" "enabled") }}
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: {{ include "demo-apipatterns-chart.appFullname" . }}
+  labels:
+    {{- include "demo-apipatterns-chart.labels" . | nindent 4 }}
+spec:
+  host: {{ index .Values "gql-app" "route" "host" | quote }}
+  to:
+    kind: Service
+    name: {{ include "demo-apipatterns-chart.appFullname" . }}
+  port:
+    targetPort: http
+  {{- if (index .Values "gql-app" "route" "tls") }}
+  tls:
+    {{- toYaml (index .Values "gql-app" "route" "tls") | nindent 4 }}
+  {{- end }}
+{{- end }}

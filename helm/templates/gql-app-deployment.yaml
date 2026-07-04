@@ -1,0 +1,64 @@
+{{- if (index .Values "gql-app" "enabled") }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "demo-apipatterns-chart.appFullname" . }}
+  labels:
+    {{- include "demo-apipatterns-chart.labels" . | nindent 4 }}
+  annotations:
+    image.openshift.io/triggers: >-
+      [{"from":{"kind":"ImageStreamTag","name":"{{ .Values.imageStream.name }}:{{ .Values.imageStream.tag }}","namespace":"{{ .Release.Namespace }}"},"fieldPath":"spec.template.spec.containers[?(@.name=='graphql-app')].image"}]
+    argocd.argoproj.io/ignore-differences: |-
+      jsonPointers:
+        - /spec/template/spec/containers/0/image
+spec:
+  replicas: {{ .Values.replicaCount | default 1 }}
+  selector:
+    matchLabels:
+      app: {{ include "demo-apipatterns-chart.appFullname" . | quote }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "demo-apipatterns-chart.appFullname" . | quote }}
+    spec:
+      containers:
+        - name: graphql-app
+          image: {{ include "demo-apipatterns-chart.appImage" . | quote }}
+          imagePullPolicy: {{ index .Values "gql-app" "imagePullPolicy" | default "IfNotPresent" }}
+          ports:
+            - containerPort: {{ index .Values "gql-app" "service" "port" }}
+              name: http
+          env:
+            {{- include "demo-apipatterns-chart.appEnv" . | nindent 12 }}
+          {{- if .Values.sqlite.enabled }}
+          volumeMounts:
+            - name: sqlite-data
+              mountPath: {{ .Values.sqlite.mountPath | quote }}
+          {{- end }}
+          {{- with (index .Values "gql-app" "resources") }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      {{- if .Values.sqlite.enabled }}
+      volumes:
+        - name: sqlite-data
+{{- if .Values.sqlite.persistent }}
+          persistentVolumeClaim:
+            claimName: {{ include "demo-apipatterns-chart.sqliteFullname" . }}
+{{- else }}
+          emptyDir: {}
+{{- end }}
+      {{- end }}
+      {{- with (index .Values "gql-app" "nodeSelector") }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with (index .Values "gql-app" "affinity") }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with (index .Values "gql-app" "tolerations") }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}
