@@ -1,0 +1,24 @@
+{{- if and (index .Values "gql-app-books" "enabled") (index .Values "gql-app-books" "route" "enabled") }}
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: {{ include "demo-apipatterns-chart.fullname" . }}-gql-books
+  labels:
+    {{- include "demo-apipatterns-chart.labels" . | nindent 4 }}
+    app.kubernetes.io/component: gql-books
+spec:
+  {{- if (index .Values "gql-app-books" "route" "host") }}
+  host: {{ index .Values "gql-app-books" "route" "host" }}
+  {{- end }}
+  to:
+    kind: Service
+    name: {{ include "demo-apipatterns-chart.fullname" . }}-gql-books
+    weight: 100
+  port:
+    targetPort: http
+  {{- with (index .Values "gql-app-books" "route" "tls") }}
+  tls:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  wildcardPolicy: None
+{{- end }}

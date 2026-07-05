@@ -1,0 +1,12 @@
+{{- if (index .Values "gql-app-authors" "enabled") }}
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  name: {{ index .Values "gql-app-authors" "imageStream" "name" }}
+  labels:
+    {{- include "demo-apipatterns-chart.labels" . | nindent 4 }}
+    app.kubernetes.io/component: gql-authors
+spec:
+  lookupPolicy:
+    local: true
+{{- end }}

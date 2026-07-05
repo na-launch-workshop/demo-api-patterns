@@ -1,0 +1,32 @@
+{{- if and (index .Values "gql-app-authors" "enabled") (index .Values "gql-app-authors" "buildConfig" "enabled") }}
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: {{ include "demo-apipatterns-chart.fullname" . }}-gql-authors
+  labels:
+    {{- include "demo-apipatterns-chart.labels" . | nindent 4 }}
+    app.kubernetes.io/component: gql-authors
+spec:
+  output:
+    to:
+      kind: ImageStreamTag
+      name: {{ index .Values "gql-app-authors" "imageStream" "name" }}:{{ index .Values "gql-app-authors" "imageStream" "tag" }}
+  source:
+    type: Git
+    git:
+      uri: {{ .Values.buildConfig.git.uri }}
+      ref: {{ .Values.buildConfig.git.ref }}
+    contextDir: {{ index .Values "gql-app-authors" "buildConfig" "contextDir" }}
+  strategy:
+    type: Docker
+    dockerStrategy:
+      dockerfilePath: {{ .Values.buildConfig.dockerfilePath | default "Dockerfile" }}
+  triggers:
+    {{- if .Values.buildConfig.triggers.configChange }}
+    - type: ConfigChange
+    {{- end }}
+    {{- if .Values.buildConfig.triggers.imageChange }}
+    - type: ImageChange
+    {{- end }}
+  runPolicy: {{ .Values.buildConfig.runPolicy | default "Serial" }}
+{{- end }}

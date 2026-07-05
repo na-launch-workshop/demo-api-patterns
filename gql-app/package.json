@@ -6,6 +6,9 @@
   "type": "module",
   "scripts": {
     "start": "node index.js",
+    "start:authors": "node index-authors.js",
+    "start:books": "node index-books.js",
+    "start:full": "node index-full.js",
     "seed": "node scripts/seed.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

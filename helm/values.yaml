@@ -1,5 +1,61 @@
 replicaCount: 1
 
+gql-app-authors:
+  enabled: true
+  image: ""
+  imagePullPolicy: Always
+  service:
+    type: ClusterIP
+    port: 4001
+  route:
+    enabled: true
+    host: ""
+    tls:
+      termination: edge
+      insecureEdgeTerminationPolicy: Redirect
+  env:
+    - name: PORT
+      value: "4001"
+  startCommand: "npm run start:authors"
+  resources: {}
+  nodeSelector: null
+  affinity: null
+  tolerations: []
+  imageStream:
+    name: demo-apipatterns-gql-authors
+    tag: latest
+  buildConfig:
+    enabled: true
+    contextDir: gql-app
+
+gql-app-books:
+  enabled: true
+  image: ""
+  imagePullPolicy: Always
+  service:
+    type: ClusterIP
+    port: 4002
+  route:
+    enabled: true
+    host: ""
+    tls:
+      termination: edge
+      insecureEdgeTerminationPolicy: Redirect
+  env:
+    - name: PORT
+      value: "4002"
+  startCommand: "npm run start:books"
+  resources: {}
+  nodeSelector: null
+  affinity: null
+  tolerations: []
+  imageStream:
+    name: demo-apipatterns-gql-books
+    tag: latest
+  buildConfig:
+    enabled: true
+    contextDir: gql-app
+
 gql-app:
   enabled: true
   image: ""
@@ -13,7 +69,10 @@ gql-app:
     tls:
       termination: edge
       insecureEdgeTerminationPolicy: Redirect
-  env: []
+  env:
+    - name: PORT
+      value: "4000"
+  startCommand: "npm run start:full"
   resources: {}
   nodeSelector: null
   affinity: null

@@ -1,0 +1,89 @@
+{{- if (index .Values "gql-app-books" "enabled") }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "demo-apipatterns-chart.fullname" . }}-gql-books
+  labels:
+    {{- include "demo-apipatterns-chart.labels" . | nindent 4 }}
+    app.kubernetes.io/component: gql-books
+  annotations:
+    image.openshift.io/triggers: >-
+      [{"from":{"kind":"ImageStreamTag","name":"{{ index .Values "gql-app-books" "imageStream" "name" }}:{{ index .Values "gql-app-books" "imageStream" "tag" }}","namespace":"{{ .Release.Namespace }}"},"fieldPath":"spec.template.spec.containers[?(@.name=='graphql-books')].image"}]
+    argocd.argoproj.io/ignore-differences: |-
+      jsonPointers:
+        - /spec/template/spec/containers/0/image
+spec:
+  replicas: {{ .Values.replicaCount | default 1 }}
+  selector:
+    matchLabels:
+      app: {{ include "demo-apipatterns-chart.fullname" . }}-gql-books
+  template:
+    metadata:
+      labels:
+        app: {{ include "demo-apipatterns-chart.fullname" . }}-gql-books
+    spec:
+      containers:
+        - name: graphql-books
+          image: {{ index .Values "gql-app-books" "image" | default (printf "%s/%s/%s:%s" "image-registry.openshift-image-registry.svc:5000" .Release.Namespace (index .Values "gql-app-books" "imageStream" "name") (index .Values "gql-app-books" "imageStream" "tag")) | quote }}
+          imagePullPolicy: {{ index .Values "gql-app-books" "imagePullPolicy" | default "IfNotPresent" }}
+          {{- if (index .Values "gql-app-books" "startCommand") }}
+          command: ["/bin/sh", "-c"]
+          args: ["{{ index .Values "gql-app-books" "startCommand" }}"]
+          {{- end }}
+          ports:
+            - containerPort: {{ index .Values "gql-app-books" "service" "port" }}
+              name: http
+          env:
+            - name: PGHOST
+              value: {{ include "demo-apipatterns-chart.postgresFullname" . | quote }}
+            - name: PGPORT
+              value: {{ .Values.postgres.port | quote }}
+            - name: PGUSER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "demo-apipatterns-chart.postgresFullname" . }}
+                  key: POSTGRES_USER
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "demo-apipatterns-chart.postgresFullname" . }}
+                  key: POSTGRES_PASSWORD
+            - name: PGDATABASE
+              value: {{ .Values.postgres.database | quote }}
+            - name: MYSQL_HOST
+              value: {{ include "demo-apipatterns-chart.mysqlFullname" . | quote }}
+            - name: MYSQL_PORT
+              value: {{ .Values.mysql.port | quote }}
+            - name: MYSQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "demo-apipatterns-chart.mysqlFullname" . }}
+                  key: MYSQL_USER
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "demo-apipatterns-chart.mysqlFullname" . }}
+                  key: MYSQL_PASSWORD
+            - name: MYSQL_DATABASE
+              value: {{ .Values.mysql.database | quote }}
+            {{- range (index .Values "gql-app-books" "env") }}
+            - name: {{ .name }}
+              value: {{ .value | quote }}
+            {{- end }}
+          {{- with (index .Values "gql-app-books" "resources") }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      {{- with (index .Values "gql-app-books" "nodeSelector") }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with (index .Values "gql-app-books" "affinity") }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with (index .Values "gql-app-books" "tolerations") }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

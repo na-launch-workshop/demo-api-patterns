@@ -1,0 +1,73 @@
+{{- if (index .Values "gql-app-authors" "enabled") }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "demo-apipatterns-chart.fullname" . }}-gql-authors
+  labels:
+    {{- include "demo-apipatterns-chart.labels" . | nindent 4 }}
+    app.kubernetes.io/component: gql-authors
+  annotations:
+    image.openshift.io/triggers: >-
+      [{"from":{"kind":"ImageStreamTag","name":"{{ index .Values "gql-app-authors" "imageStream" "name" }}:{{ index .Values "gql-app-authors" "imageStream" "tag" }}","namespace":"{{ .Release.Namespace }}"},"fieldPath":"spec.template.spec.containers[?(@.name=='graphql-authors')].image"}]
+    argocd.argoproj.io/ignore-differences: |-
+      jsonPointers:
+        - /spec/template/spec/containers/0/image
+spec:
+  replicas: {{ .Values.replicaCount | default 1 }}
+  selector:
+    matchLabels:
+      app: {{ include "demo-apipatterns-chart.fullname" . }}-gql-authors
+  template:
+    metadata:
+      labels:
+        app: {{ include "demo-apipatterns-chart.fullname" . }}-gql-authors
+    spec:
+      containers:
+        - name: graphql-authors
+          image: {{ index .Values "gql-app-authors" "image" | default (printf "%s/%s/%s:%s" "image-registry.openshift-image-registry.svc:5000" .Release.Namespace (index .Values "gql-app-authors" "imageStream" "name") (index .Values "gql-app-authors" "imageStream" "tag")) | quote }}
+          imagePullPolicy: {{ index .Values "gql-app-authors" "imagePullPolicy" | default "IfNotPresent" }}
+          {{- if (index .Values "gql-app-authors" "startCommand") }}
+          command: ["/bin/sh", "-c"]
+          args: ["{{ index .Values "gql-app-authors" "startCommand" }}"]
+          {{- end }}
+          ports:
+            - containerPort: {{ index .Values "gql-app-authors" "service" "port" }}
+              name: http
+          env:
+            - name: PGHOST
+              value: {{ include "demo-apipatterns-chart.postgresFullname" . | quote }}
+            - name: PGPORT
+              value: {{ .Values.postgres.port | quote }}
+            - name: PGUSER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "demo-apipatterns-chart.postgresFullname" . }}
+                  key: POSTGRES_USER
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "demo-apipatterns-chart.postgresFullname" . }}
+                  key: POSTGRES_PASSWORD
+            - name: PGDATABASE
+              value: {{ .Values.postgres.database | quote }}
+            {{- range (index .Values "gql-app-authors" "env") }}
+            - name: {{ .name }}
+              value: {{ .value | quote }}
+            {{- end }}
+          {{- with (index .Values "gql-app-authors" "resources") }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      {{- with (index .Values "gql-app-authors" "nodeSelector") }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with (index .Values "gql-app-authors" "affinity") }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with (index .Values "gql-app-authors" "tolerations") }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

@@ -25,6 +25,10 @@ spec:
         - name: graphql-app
           image: {{ include "demo-apipatterns-chart.appImage" . | quote }}
           imagePullPolicy: {{ index .Values "gql-app" "imagePullPolicy" | default "IfNotPresent" }}
+          {{- if (index .Values "gql-app" "startCommand") }}
+          command: ["/bin/sh", "-c"]
+          args: ["{{ index .Values "gql-app" "startCommand" }}"]
+          {{- end }}
           ports:
             - containerPort: {{ index .Values "gql-app" "service" "port" }}
               name: http

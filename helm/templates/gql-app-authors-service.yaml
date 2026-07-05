@@ -1,0 +1,18 @@
+{{- if (index .Values "gql-app-authors" "enabled") }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "demo-apipatterns-chart.fullname" . }}-gql-authors
+  labels:
+    {{- include "demo-apipatterns-chart.labels" . | nindent 4 }}
+    app.kubernetes.io/component: gql-authors
+spec:
+  type: {{ index .Values "gql-app-authors" "service" "type" | default "ClusterIP" }}
+  ports:
+    - name: http
+      port: {{ index .Values "gql-app-authors" "service" "port" }}
+      targetPort: http
+      protocol: TCP
+  selector:
+    app: {{ include "demo-apipatterns-chart.fullname" . }}-gql-authors
+{{- end }}

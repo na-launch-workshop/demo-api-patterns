@@ -1,0 +1,24 @@
+{{- if and (index .Values "gql-app-authors" "enabled") (index .Values "gql-app-authors" "route" "enabled") }}
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: {{ include "demo-apipatterns-chart.fullname" . }}-gql-authors
+  labels:
+    {{- include "demo-apipatterns-chart.labels" . | nindent 4 }}
+    app.kubernetes.io/component: gql-authors
+spec:
+  {{- if (index .Values "gql-app-authors" "route" "host") }}
+  host: {{ index .Values "gql-app-authors" "route" "host" }}
+  {{- end }}
+  to:
+    kind: Service
+    name: {{ include "demo-apipatterns-chart.fullname" . }}-gql-authors
+    weight: 100
+  port:
+    targetPort: http
+  {{- with (index .Values "gql-app-authors" "route" "tls") }}
+  tls:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  wildcardPolicy: None
+{{- end }}
