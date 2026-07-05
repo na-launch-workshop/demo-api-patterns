@@ -79,7 +79,7 @@ grpc-app:
 buildConfig:
   git:
     uri: https://github.com/na-launch-workshop/demo-api-patterns.git
-    ref: master
+    ref: main
   dockerfilePath: Dockerfile
   resources: {}
   env: []
@@ -147,7 +147,7 @@ argocd:
   namespace: openshift-gitops
   project: default
   repoURL: https://github.com/na-launch-workshop/demo-api-patterns.git
-  targetRevision: master
+  targetRevision: main
   path: helm
   helm:
     valueFiles: []
